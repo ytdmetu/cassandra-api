@@ -27,6 +27,7 @@ The API will be available at `http://127.0.0.1:8000`
 ### Stock price history
 
 GET: `/history`
+
 Body: 
 ```json
 {
@@ -48,6 +49,7 @@ For interval, the following values can be used:
 ### Forecast
 
 POST: `/forecast`
+
 Body: 
 ```json
 {
