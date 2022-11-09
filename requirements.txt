@@ -3,4 +3,4 @@ uvicorn==0.18.2
 yfinance==0.1.84
 numpy
 scikit-learn
-torch
+torch==1.9.0+cpu
