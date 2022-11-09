@@ -8,6 +8,7 @@ from cassandra.forecast import ForecastStrategy, forecast
 
 api = FastAPI()
 
+
 @api.get("/history")
 def get_stock_prices(data: HistoryInput):
     if data.start_date > data.end_date:
@@ -20,9 +21,12 @@ def get_stock_prices(data: HistoryInput):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="End date must be before today",
         )
-
-    stock = yf.Ticker(data.stock)
-    hist = stock.history(start=data.start_date, end=data.end_date, interval=data.interval).reset_index().to_dict(orient="records")
+    hist = (
+        yf.Ticker(data.stock)
+        .history(start=data.start_date, end=data.end_date, interval=data.interval)
+        .reset_index()
+        .to_dict(orient="records")
+    )
     return hist
 
 
@@ -38,7 +42,9 @@ def get_stock_prices(data: ForecastInput):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="End date must be before today",
         )
-    df = yf.Ticker(data.stock).history(start=data.start_date, end=data.end_date, interval=data.interval)
+    df = yf.Ticker(data.stock).history(
+        start=data.start_date, end=data.end_date, interval=data.interval
+    )
     strategy = data.strategy or ForecastStrategy.naive_lstm
     predictions = forecast(data.stock, df, strategy=strategy)
     return predictions
