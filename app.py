@@ -6,9 +6,9 @@ from datetime import date
 from cassandra.forecast import ForecastStrategy, forecast
 
 
-app = FastAPI()
+api = FastAPI()
 
-@app.get("/history")
+@api.get("/history")
 def get_stock_prices(data: HistoryInput):
     if data.start_date > data.end_date:
         raise HTTPException(
@@ -26,7 +26,7 @@ def get_stock_prices(data: HistoryInput):
     return hist
 
 
-@app.post("/forecast")
+@api.post("/forecast")
 def get_stock_prices(data: ForecastInput):
     if data.start_date > data.end_date:
         raise HTTPException(

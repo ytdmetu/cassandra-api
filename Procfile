@@ -1,1 +1,1 @@
-web: uvicorn app:client
+web: uvicorn app:api
