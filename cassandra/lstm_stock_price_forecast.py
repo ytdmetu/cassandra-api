@@ -4,6 +4,7 @@ import pickle
 from sklearn.preprocessing import StandardScaler
 import torch
 import torch.nn as nn
+from .utils import get_asset_filepath
 
 
 # LSTM Model
@@ -69,3 +70,27 @@ def build_forecaster(config, preprocessor_filepath, model_filepath):
     model.load_state_dict(torch.load(model_filepath))
     forecaster = Forecaster(preprocessor, model)
     return forecaster
+
+lstm_forecaster_config = dict(
+    data=dict(
+        look_back=60,
+    ),
+    model=dict(
+        input_dim=1,
+        hidden_dim=32,
+        num_layers=2,
+        output_dim=1,
+    ),
+    inference=dict(),
+)
+
+lstm_forecaster = build_forecaster(
+    lstm_forecaster_config,
+    get_asset_filepath("preprocessor.pkl"),
+    get_asset_filepath("model.pth"),
+)
+
+
+def lstm_forecast(x, n):
+    look_back = lstm_forecaster_config["data"]["look_back"]
+    return lstm_forecaster(x[-look_back:], n)
