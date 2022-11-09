@@ -1,1 +1,1 @@
-web: uvicorn app:api
+web: --port 5000 --host 127.0.0.1 app:api --reload
