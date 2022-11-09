@@ -65,3 +65,19 @@ For strategy, the following values can be used:
 * random_walk
 * gaussian
 * naive_lstm
+
+## Example usage of API
+```py
+import requests
+forecast_endpoint = 'https://cassandra-api.herokuapp.com/forecast'
+payload = {
+    "stock": "META",
+    "start_date": "2022-11-02",
+    "end_date": "2022-11-09",
+    "interval": "1h",
+    "n_forecast": 12
+}
+res = requests.post(forecast_endpoint, json=payload)
+print(res.status_code)
+print(res.json())
+```
