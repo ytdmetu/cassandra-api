@@ -1,5 +1,6 @@
 fastapi==0.79.0
 uvicorn==0.18.2
+gunicorn
 yfinance==0.1.84
 numpy
 scikit-learn
