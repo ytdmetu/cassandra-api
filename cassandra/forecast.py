@@ -40,3 +40,20 @@ def forecast(stock_id, df, n_forecast=12, strategy=ForecastStrategy.random_walk)
     else:
         raise ValueError(strategy)
     return dict(x=x, y=y)
+
+def forecast_past_hours(start_date, end_date, historical_df, strategy, stock):
+    timediff = (end_date - start_date)
+    timediff = timediff.days * 24 + timediff.seconds // 3600
+    if timediff >= 48:
+        new_predictions = []
+        for i in range(12):
+            new_df = historical_df.iloc[:-(12-i)]
+            strategy = strategy or ForecastStrategy.naive_lstm
+            pred = forecast(stock, new_df, strategy=strategy)
+            new_predictions.append(pred['y'][0])
+        comparision_df = (historical_df.reset_index().iloc[-12:].rename(columns={'index': 'Date', 'Close':'Actual'})[['Date', 'Actual']])
+        comparision_df['Predicted'] = new_predictions
+        comparisions = comparision_df.to_dict(orient='records')
+        return comparisions
+    else:
+        return 'Date range is too small to compare'
