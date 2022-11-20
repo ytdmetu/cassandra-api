@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException, status
 from model import HistoryInput, ForecastInput
 import yfinance as yf
 from datetime import date
-import pandas as pd
 
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past_hours
 
@@ -46,7 +45,6 @@ def get_stock_prices(data: ForecastInput):
     df = yf.Ticker(data.stock).history(
         start=data.start_date, end=data.end_date, interval=data.interval
     )
-
     strategy = data.strategy or ForecastStrategy.naive_lstm
     predictions = forecast(data.stock, df, strategy=strategy)
     return predictions
