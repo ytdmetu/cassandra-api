@@ -45,15 +45,15 @@ def forecast_past_hours(start_date, end_date, historical_df, strategy, stock):
     timediff = (end_date - start_date)
     timediff = timediff.days * 24 + timediff.seconds // 3600
     if timediff >= 48:
+        new_predictions_date = []
         new_predictions = []
         for i in range(12):
             new_df = historical_df.iloc[:-(12-i)]
             strategy = strategy or ForecastStrategy.naive_lstm
             pred = forecast(stock, new_df, strategy=strategy)
             new_predictions.append(pred['y'][0])
-        comparision_df = (historical_df.reset_index().iloc[-12:].rename(columns={'index': 'Date', 'Close':'Actual'})[['Date', 'Actual']])
-        comparision_df['Predicted'] = new_predictions
-        comparisions = comparision_df.to_dict(orient='records')
-        return comparisions
+            new_predictions_date.append(pred['x'][0])
+        actual = (historical_df.reset_index().iloc[-12:][['Close']]).Close.values.tolist()
+        return {'x': new_predictions_date, 'y': new_predictions, 'z': actual}
     else:
         return 'Date range is too small to compare'
