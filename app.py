@@ -67,9 +67,5 @@ def forecast_past_hour(data: ForecastInput):
 
     strategy = data.strategy or ForecastStrategy.naive_lstm
 
-    # Find time difference between start and end date in hours
-    timediff = (data.end_date - data.start_date)
-    timediff = timediff.days * 24 + timediff.seconds // 3600
-    # number of rows in the dataframe
     comparisions = forecast_past_hours(data.start_date, data.end_date, df, strategy, data.stock)
     return comparisions
