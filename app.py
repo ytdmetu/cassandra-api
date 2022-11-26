@@ -3,7 +3,7 @@ from model import HistoryInput, ForecastInput
 import yfinance as yf
 from datetime import date
 
-from cassandra.forecast import ForecastStrategy, forecast
+from cassandra.forecast import ForecastStrategy, forecast, forecast_past_hours
 
 
 api = FastAPI()
@@ -48,3 +48,24 @@ def get_stock_prices(data: ForecastInput):
     strategy = data.strategy or ForecastStrategy.naive_lstm
     predictions = forecast(data.stock, df, strategy=strategy)
     return predictions
+
+@api.post("/forecast_past_hours")
+def forecast_past_hour(data: ForecastInput):
+    if data.start_date > data.end_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Start date must be before end date",
+        )
+    if data.end_date > date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="End date must be before today",
+        )
+    df = yf.Ticker(data.stock).history(
+        start=data.start_date, end=data.end_date, interval=data.interval
+    )
+
+    strategy = data.strategy or ForecastStrategy.naive_lstm
+
+    comparisions = forecast_past_hours(data.start_date, data.end_date, df, strategy, data.stock)
+    return comparisions
