@@ -11,12 +11,7 @@ def get_news(symbol):
         if symbol == 'AAPL':
             api_token = 'demo'
         else:
-            # print random number between 1 and 100
-            rand = random.randint(1, 2)
-            if rand == 1:
-                api_token = Config.API_TOKEN1
-            else:
-                api_token = Config.API_TOKEN2
+            api_token = random.choice([Config.API_TOKEN_EODHD_1, Config.API_TOKEN_EODHD_2])
         url = f"https://eodhistoricaldata.com/api/news?api_token={api_token}&s={symbol}&offset=0&limit=10"
         payload={}
         headers = {}
@@ -25,7 +20,7 @@ def get_news(symbol):
         
         return response.json()
     elif random_number == 3:
-        url = f"https://api.marketaux.com/v1/news/all?symbols={symbol}&filter_entities=true&language=en&api_token={Config.API_TOKEN4}"
+        url = f"https://api.marketaux.com/v1/news/all?symbols={symbol}&filter_entities=true&language=en&api_token={Config.API_TOKEN_MARKETAUX}"
 
         payload={}
         headers = {}
@@ -36,7 +31,7 @@ def get_news(symbol):
     else:
         start_date = date.today() - timedelta(days=10)
         end_date = date.today() + timedelta(days=1)
-        url = f"https://finnhub.io/api/v1/company-news?symbol={symbol}&from={start_date}&to={end_date}&token={Config.API_TOKEN3}"
+        url = f"https://finnhub.io/api/v1/company-news?symbol={symbol}&from={start_date}&to={end_date}&token={Config.API_TOKEN_FINNHUB}"
         payload={}
         headers = {}
 

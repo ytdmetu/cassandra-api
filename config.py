@@ -1,7 +1,7 @@
 import os 
 
 class Config(object):
-    API_TOKEN1 = os.environ.get("API_TOKEN1")
-    API_TOKEN2 = os.environ.get("API_TOKEN2")
-    API_TOKEN3 = os.environ.get("API_TOKEN3")
-    API_TOKEN4 = os.environ.get("API_TOKEN4")
+    API_TOKEN_EODHD_1 = os.environ.get("API_TOKEN_EODHD_1")
+    API_TOKEN_EODHD_2 = os.environ.get("API_TOKEN_EODHD_2")
+    API_TOKEN_FINNHUB = os.environ.get("API_TOKEN_FINNHUB")
+    API_TOKEN_MARKETAUX = os.environ.get("API_TOKEN_MARKETAUX")
