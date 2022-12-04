@@ -4,7 +4,7 @@ from datetime import date, timedelta
 import requests
 
 def get_news(symbol):
-    random_number = random.randint(1, 3)
+    random_number = random.randint(1, 4)
     # TODO: ustteki siteden gunluk maks 20 haber (request degil haber sayisi) cekilebiliyor. Bu yuzden simdilik o tarafa istek atilmiyor. 
     # Usttekinin avantaji haberin semantic sonucunu da donduruyor.
     if random_number < 1:
@@ -23,6 +23,15 @@ def get_news(symbol):
 
         response = requests.request("GET", url, headers=headers, data=payload)
         
+        return response.json()
+    elif random_number == 3:
+        url = f"https://api.marketaux.com/v1/news/all?symbols={symbol}&filter_entities=true&language=en&api_token={Config.API_TOKEN4}"
+
+        payload={}
+        headers = {}
+
+        response = requests.request("GET", url, headers=headers, data=payload)
+
         return response.json()
     else:
         start_date = date.today() - timedelta(days=10)
