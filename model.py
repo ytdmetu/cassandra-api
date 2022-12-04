@@ -38,3 +38,9 @@ class ForecastInput(BaseModel):
 
     class Config:
         use_enum_values = True
+
+
+class NewsInput(BaseModel):
+    symbol: str
+    class Config:
+        use_enum_values = True
