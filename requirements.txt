@@ -1,8 +1,22 @@
 fastapi==0.79.0
 uvicorn==0.18.2
-gunicorn
 yfinance==0.1.84
-numpy
-scikit-learn
+# data
+pandas==1.3.5
+numpy==1.21.6
+holidays==0.17.2
+# dashboard
+plotly==5.11.0
+dash==2.6.2
+dash-renderer==1.9.1
+dash-core-components==2.0.0
+dash-html-components==2.0.0
+# deployment
+gunicorn==20.1.0
+# inference
+scikit-learn==1.0.2
+tsai==0.3.4
+ipython==7.9.0
+ipykernel==5.3.4
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==1.12.0+cpu
