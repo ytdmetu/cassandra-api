@@ -39,7 +39,7 @@ class Forecaster:
         for i in range(n):
             pred = self._predict_one(df)
             df = add_prediction_to_dataset(df, pred)
-        return df.Close.values[initial_length:].tolist()
+        return df.price.values[initial_length:].tolist()
 
     def _predict_one(self, df):
         df = prepare_dataset(df)
@@ -53,7 +53,7 @@ class Forecaster:
 
 def add_prediction_to_dataset(df, price):
     next_datetime = df.index[-1] + pd.DateOffset(hours=1)
-    new_df = pd.DataFrame(index=[next_datetime], data=dict(Close=[price]))
+    new_df = pd.DataFrame(index=[next_datetime], data=dict(price=[price]))
     return pd.concat([df, new_df], axis=0)
 
 
