@@ -36,8 +36,6 @@ def get_stock_prices(data: ForecastInput):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="End date must be before today",
         )
-    # TODO: It does not work other strategies so it should be fixed
-    strategy = ForecastStrategy.univariate_lstm
     
     n_forecast = data.n_forecast or 12
     # stock price history
@@ -47,12 +45,12 @@ def get_stock_prices(data: ForecastInput):
     # forecast
     input_df = df[data.end_date - datetime.timedelta(days=FORECAST_INPUT_START_OFFSET) :]
     forecast_data = forecast(
-        strategy,
+        data.strategy,
         data.stock,
         input_df,
         n_forecast,
     )
-    past_predictions = forecast_past(strategy, df, data.stock)
+    past_predictions = forecast_past(data.strategy, df, data.stock)
     # representation
     history_data = {"x": df.index.tolist(), "y": df.price.tolist(), "name": "History"}
     forecast_data["name"] = "Forecast"

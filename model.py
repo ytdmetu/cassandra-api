@@ -31,10 +31,7 @@ class ForecastInput(BaseModel):
     end_date: date
     interval: Interval
     n_forecast: int
-    strategy: Optional[ForecastStrategy] = Field(
-        default="naive_lstm",
-        title="Forecasting strategy",
-    )
+    strategy: ForecastStrategy
 
     class Config:
         use_enum_values = True
