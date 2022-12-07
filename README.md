@@ -64,7 +64,9 @@ Body:
 For strategy, the following values can be used:
 * random_walk
 * gaussian
-* naive_lstm
+* naive_forecast
+* univariate_lstm
+* multivariate_datetime
 
 ## Example usage of API
 ```py
