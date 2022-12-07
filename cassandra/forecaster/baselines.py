@@ -15,7 +15,7 @@ def random_walk(df, xnew):
     initial_value = y[-1]
     delta = y.std()
     result = [initial_value]
-    for i in range(1, n):
+    for i in range(n):
         movement = -delta if random() < 0.5 else delta
         value = result[i - 1] + movement
         result.append(value)
