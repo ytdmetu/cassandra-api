@@ -7,6 +7,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from pandas.api.types import CategoricalDtype
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -15,7 +16,7 @@ from tsai.inference import *
 from tsai.learner import load_learner
 
 from ..features import prepare_dataset
-from ..timeseries_utils import make_ts_samples
+from ..timeseries_utils import sliding_window
 from ..utils import get_asset_filepath
 
 config = dict(
@@ -24,6 +25,11 @@ config = dict(
     ),
 )
 
+def make_ts_samples(data, look_back):
+    snippets = sliding_window(data, look_back) # (N, W, F+1)
+    x = np.swapaxes(snippets[:, :-1, :-1], 1, 2) # (N, F, W-1)
+    y = snippets[:, -1, -1] # (N, )
+    return x, y
 
 # Inference
 class Forecaster:
@@ -41,14 +47,17 @@ class Forecaster:
             df = add_prediction_to_dataset(df, pred)
         return df.price.values[initial_length:].tolist()
 
-    def _predict_one(self, df):
-        df = prepare_dataset(df)
-        x = self.xpp.transform(df.iloc[-self.look_back :])
-        target_idx = df.columns.tolist().index('price')
-        xb, _ = make_ts_samples(x, self.look_back, target_idx)
-        xb = np.swapaxes(xb, 1, 2)
+    def _predict_one(self, raw_df):
+        df = prepare_dataset(raw_df.iloc[-self.look_back:])
+        x_data_pp = self.xpp.transform(df)
+        y_data_pp = self.ypp.transform(df["price_change"].values.reshape(-1, 1))
+        data_pp = np.concatenate([x_data_pp, y_data_pp], axis=1)
+        xb, _ = make_ts_samples(data_pp, self.look_back)
         _, _, y_pred = self.learn.get_X_preds(xb)
-        return self.ypp.inverse_transform(np.array(y_pred).reshape(-1, 1)).item()
+        price_change = self.ypp.inverse_transform(
+            np.array(y_pred).reshape(-1, 1)
+        ).item()
+        return df.price[-1] + price_change
 
 
 def add_prediction_to_dataset(df, price):
@@ -68,12 +77,12 @@ def build_forecaster(
 
 
 forecaster = build_forecaster(
-    get_asset_filepath("multivariate-inception-datetime/xpp.pkl"),
-    get_asset_filepath("multivariate-inception-datetime/ypp.pkl"),
-    get_asset_filepath("multivariate-inception-datetime/learn.pkl"),
+    get_asset_filepath("multivariate-diff/xpp.pkl"),
+    get_asset_filepath("multivariate-diff/ypp.pkl"),
+    get_asset_filepath("multivariate-diff/learn.pkl"),
     look_back=config["data"]["look_back"],
 )
 
 
-def inception_forecast(df, xnew):
+def forecast(df, xnew):
     return forecaster(df, xnew)
