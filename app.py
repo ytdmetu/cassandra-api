@@ -36,7 +36,6 @@ def get_stock_prices(data: ForecastInput):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="End date must be before today",
         )
-    
     n_forecast = data.n_forecast or 12
     # stock price history
     df = fetch_stock_price(
