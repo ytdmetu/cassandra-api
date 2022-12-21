@@ -3,7 +3,26 @@ from starlette.testclient import TestClient
 
 test_client = TestClient(api)
 
-def test_api():
-    payload = {'stock': 'AAPL', 'start_date': '2021-01-01', 'end_date': '2021-01-02', 'is_hourly': False}
-    response = test_client.post("/get_daily_data/", json=payload)
+def test_forecast_api():
+    payload = {
+        "stock": "AAPL",
+        "start_date": "2022-11-01",
+        "end_date": "2022-11-02",
+        "interval": "1h",
+        "n_forecast": 10,
+        "strategy": "gaussian"
+    }
+    response = test_client.post("/forecast", json=payload)
+    assert response.status_code == 200
+
+def test_forecast_past_hour_api():
+    payload = {
+        "stock": "AAPL",
+        "start_date": "2022-11-01",
+        "end_date": "2022-11-02",
+        "interval": "1h",
+        "n_forecast": 10,
+        "strategy": "gaussian"
+    }
+    response = test_client.post("/forecast_past_hours", json=payload)
     assert response.status_code == 200
