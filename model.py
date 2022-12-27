@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from datetime import date
 from enum import Enum
 from cassandra.forecast import ForecastStrategy
@@ -24,6 +24,18 @@ class HistoryInput(BaseModel):
     class Config:
         use_enum_values = True
 
+class StockPrice(BaseModel):
+    stock: str
+    start_date: date
+    end_date: date
+    interval: Interval
+
+    class Config:
+        validate_assignment = True
+
+    @validator('interval')
+    def set_name(cls, interval):
+        return interval or '1h'
 
 class ForecastInput(BaseModel):
     stock: str

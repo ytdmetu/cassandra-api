@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, status
-from model import HistoryInput, ForecastInput
+from model import HistoryInput, ForecastInput, StockPrice
 import yfinance as yf
 from datetime import date
 from functools import lru_cache
@@ -11,6 +11,27 @@ TIMEZONE = datetime.timezone.utc
 FORECAST_INPUT_START_OFFSET = 30
 api = FastAPI()
 
+@api.get("/stockprice")
+# Stock price history
+def fetch_price(data: StockPrice):
+    # Stock price fetch from yfinance
+    if data.start_date > data.end_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Start date must be before end date",
+        )
+    if data.end_date > date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="End date must be before today",
+        )
+    hist = (
+        yf.Ticker(data.stock)
+        .history(start=data.start_date, end=data.end_date, interval=data.interval)
+        .reset_index()
+        .to_dict(orient="records")
+    )
+    return hist
 
 @api.get("/history")
 # Stock price history
