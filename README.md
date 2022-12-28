@@ -54,11 +54,11 @@ Body:
 ```json
 {
     "stock": "META",
-    "start_date": "2022-10-26",
+    "start_date": "2022-10-01",
     "end_date": "2022-10-27",
     "interval": "1h",
     "n_forecast": 12,
-    "strategy": "naive_lstm"
+    "strategy": "naive_forecast"
 }
 ```
 For strategy, the following values can be used:
