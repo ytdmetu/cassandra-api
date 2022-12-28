@@ -19,14 +19,14 @@ pytest test_api.py
 
 In order to run API in local env:
 ```
-uvicorn app:client --reload
+uvicorn app:api --reload
 ```
 
 The API will be available at `http://127.0.0.1:8000`
 
 ### Stock price history
 
-GET: `/history`
+GET: `/stockprice`
 
 Body: 
 ```json
