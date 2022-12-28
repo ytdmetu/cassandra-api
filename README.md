@@ -77,7 +77,8 @@ payload = {
     "start_date": "2022-11-02",
     "end_date": "2022-11-09",
     "interval": "1h",
-    "n_forecast": 12
+    "n_forecast": 12,
+    "strategy": "naive_forecast"
 }
 res = requests.post(forecast_endpoint, json=payload)
 print(res.status_code)
