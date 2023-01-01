@@ -14,18 +14,13 @@ class Interval(str, Enum):
     week = "1wk"
     month = "1mo"
 
+class Stock(str, Enum):
+    APPLE = "AAPL"
+    META = "META"
 
-class HistoryInput(BaseModel):
-    stock: str
-    start_date: date
-    end_date: date
-    interval: Interval
-
-    class Config:
-        use_enum_values = True
 
 class StockPrice(BaseModel):
-    stock: str
+    stock: Stock
     start_date: date
     end_date: date
     interval: Interval
@@ -38,7 +33,7 @@ class StockPrice(BaseModel):
         return interval or '1h'
 
 class ForecastInput(BaseModel):
-    stock: str
+    stock: Stock
     start_date: date
     end_date: date
     interval: Interval

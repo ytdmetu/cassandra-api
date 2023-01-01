@@ -83,8 +83,22 @@ meta_forecaster = build_forecaster(
     look_back=meta_config["data"]["look_back"],
 )
 
+aapl_config = dict(
+    data=dict(
+        look_back=60,
+    ),
+)
+aapl_forecaster = build_forecaster(
+    get_asset_filepath("aapl/multivariate-diff/xpp.pkl"),
+    get_asset_filepath("aapl/multivariate-diff/ypp.pkl"),
+    get_asset_filepath("aapl/multivariate-diff/learn.pkl"),
+    look_back=meta_config["data"]["look_back"],
+)
+
 
 def forecast(stock_id, df, xnew):
     if stock_id.lower() == 'meta':
+        return meta_forecaster(df, xnew)
+    if stock_id.lower() == 'aapl':
         return meta_forecaster(df, xnew)
     raise ValueError()
