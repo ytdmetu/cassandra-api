@@ -1,30 +1,21 @@
-from fastapi import FastAPI, HTTPException, status
-from model import HistoryInput, ForecastInput, StockPrice
-import yfinance as yf
-from datetime import date
-from functools import lru_cache
-import pandas as pd
 import datetime
+from functools import lru_cache
+
+import pandas as pd
+import yfinance as yf
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past
+from fastapi import FastAPI
+from model import ForecastInput, StockPrice
 
 TIMEZONE = datetime.timezone.utc
 FORECAST_INPUT_START_OFFSET = 30
 api = FastAPI()
 
+
 @api.get("/stockprice")
 # Stock price history
 def fetch_price(data: StockPrice):
     # Stock price fetch from yfinance
-    if data.start_date > data.end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Start date must be before end date",
-        )
-    if data.end_date > date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="End date must be before today",
-        )
     hist = (
         yf.Ticker(data.stock)
         .history(start=data.start_date, end=data.end_date, interval=data.interval)
@@ -33,11 +24,11 @@ def fetch_price(data: StockPrice):
     )
     return hist
 
-@api.get("/history")
+
 # Stock price history
 @lru_cache(maxsize=10)
 def fetch_stock_price(stock_id, start, end, interval="1h"):
-    raw_df =  (
+    raw_df = (
         yf.Ticker(stock_id)
         .history(start=start, end=end, interval=interval)
         .tz_convert(TIMEZONE)
@@ -47,23 +38,15 @@ def fetch_stock_price(stock_id, start, end, interval="1h"):
 
 @api.post("/forecast")
 def get_stock_prices(data: ForecastInput):
-    if data.start_date > data.end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Start date must be before end date",
-        )
-    if data.end_date > date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="End date must be before today",
-        )
     n_forecast = data.n_forecast or 12
     # stock price history
     df = fetch_stock_price(
         data.stock, data.start_date.isoformat(), data.end_date.isoformat()
     )
     # forecast
-    input_df = df[data.end_date - datetime.timedelta(days=FORECAST_INPUT_START_OFFSET) :]
+    input_df = df[
+        data.end_date - datetime.timedelta(days=FORECAST_INPUT_START_OFFSET) :
+    ]
     forecast_data = forecast(
         data.strategy,
         data.stock,
@@ -82,23 +65,11 @@ def get_stock_prices(data: ForecastInput):
 
 @api.post("/forecast_past_hours")
 def forecast_past_hour(data: ForecastInput):
-    if data.start_date > data.end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Start date must be before end date",
-        )
-    if data.end_date > date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="End date must be before today",
-        )
     df = yf.Ticker(data.stock).history(
         start=data.start_date, end=data.end_date, interval=data.interval
     )
-
     strategy = data.strategy or ForecastStrategy.naive_lstm
     df = fetch_stock_price(
         data.stock, data.start_date.isoformat(), data.end_date.isoformat()
     )
-    comparisions = forecast_past(strategy, df, data.stock, look_back=60)
-    return comparisions
+    return forecast_past(strategy, df, data.stock, look_back=60)
