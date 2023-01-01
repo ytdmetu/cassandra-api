@@ -4,7 +4,7 @@ from functools import lru_cache
 import pandas as pd
 import yfinance as yf
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI
 from model import ForecastInput, StockPrice
 
 TIMEZONE = datetime.timezone.utc
@@ -12,25 +12,10 @@ FORECAST_INPUT_START_OFFSET = 30
 api = FastAPI()
 
 
-def validate_dates(start_date, end_date):
-    if start_date > end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Start date must be before end date",
-        )
-    if end_date > datetime.date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="End date must be before today",
-        )
-    return True
-
-
 @api.get("/stockprice")
 # Stock price history
 def fetch_price(data: StockPrice):
     # Stock price fetch from yfinance
-    validate_dates(data.start_date, data.end_date)
     hist = (
         yf.Ticker(data.stock)
         .history(start=data.start_date, end=data.end_date, interval=data.interval)
@@ -53,7 +38,6 @@ def fetch_stock_price(stock_id, start, end, interval="1h"):
 
 @api.post("/forecast")
 def get_stock_prices(data: ForecastInput):
-    validate_dates(data.start_date, data.end_date)
     n_forecast = data.n_forecast or 12
     # stock price history
     df = fetch_stock_price(
@@ -81,7 +65,6 @@ def get_stock_prices(data: ForecastInput):
 
 @api.post("/forecast_past_hours")
 def forecast_past_hour(data: ForecastInput):
-    validate_dates(data.start_date, data.end_date)
     df = yf.Ticker(data.stock).history(
         start=data.start_date, end=data.end_date, interval=data.interval
     )
