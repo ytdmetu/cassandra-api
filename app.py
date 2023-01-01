@@ -5,10 +5,9 @@ import pandas as pd
 import yfinance as yf
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from fastapi import Depends
+from fastapi import Depends, FastAPI, HTTPException
 import json
 from passlib.hash import pbkdf2_sha256
-from fastapi import FastAPI
 from model import ForecastInput, StockPrice
 
 TIMEZONE = datetime.timezone.utc
@@ -55,16 +54,6 @@ def fetch_stock_price(stock_id, start, end, interval="1h"):
 @api.post("/forecast")
 def get_stock_prices(data: ForecastInput, credentials: HTTPBasicCredentials = Depends(security)):
     security_check(credentials.username, credentials.password)
-    if data.start_date > data.end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Start date must be before end date",
-        )
-    if data.end_date > date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="End date must be before today",
-        )
     n_forecast = data.n_forecast or 12
     # stock price history
     df = fetch_stock_price(
@@ -93,16 +82,6 @@ def get_stock_prices(data: ForecastInput, credentials: HTTPBasicCredentials = De
 @api.post("/forecast_past_hours")
 def forecast_past_hour(data: ForecastInput, credentials: HTTPBasicCredentials = Depends(security)):
     security_check(credentials.username, credentials.password)
-    if data.start_date > data.end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Start date must be before end date",
-        )
-    if data.end_date > date.today():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="End date must be before today",
-        )
     df = yf.Ticker(data.stock).history(
         start=data.start_date, end=data.end_date, interval=data.interval
     )
