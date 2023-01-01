@@ -77,7 +77,7 @@ def build_forecaster(config, preprocessor_filepath, model_filepath, look_back):
     return forecaster
 
 
-lstm_forecaster_config = dict(
+meta_config = dict(
     data=dict(
         look_back=60,
     ),
@@ -90,13 +90,15 @@ lstm_forecaster_config = dict(
     inference=dict(),
 )
 
-lstm_forecaster = build_forecaster(
-    lstm_forecaster_config,
-    get_asset_filepath("univariate-lstm/preprocessor.pkl"),
-    get_asset_filepath("univariate-lstm/model.pth"),
-    look_back=lstm_forecaster_config["data"]["look_back"],
+meta_lstm_forecaster = build_forecaster(
+    meta_config,
+    get_asset_filepath("meta/univariate-lstm/preprocessor.pkl"),
+    get_asset_filepath("meta/univariate-lstm/model.pth"),
+    look_back=meta_config["data"]["look_back"],
 )
 
 
-def lstm_forecast(df, xnew):
-    return lstm_forecaster(df, xnew)
+def forecast(stock_id, df, xnew):
+    if stock_id.lower() == 'meta':
+        return meta_lstm_forecaster(df, xnew)
+    raise ValueError()
