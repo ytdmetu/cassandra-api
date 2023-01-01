@@ -4,6 +4,10 @@ from functools import lru_cache
 import pandas as pd
 import yfinance as yf
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import Depends
+import json
+from passlib.hash import pbkdf2_sha256
 from fastapi import FastAPI
 from model import ForecastInput, StockPrice
 
@@ -11,10 +15,22 @@ TIMEZONE = datetime.timezone.utc
 FORECAST_INPUT_START_OFFSET = 30
 api = FastAPI()
 
+security = HTTPBasic()
+def security_check(username: str, password: str):
+    with open("users.json", "r") as f:
+        users = json.load(f)
+    try:
+        if pbkdf2_sha256.verify(password, users.get(username)):
+            return True
+        else:
+            raise HTTPException(status_code=400, detail="Incorrect username or password")
+    except:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
 
 @api.get("/stockprice")
 # Stock price history
-def fetch_price(data: StockPrice):
+def fetch_price(data: StockPrice, credentials: HTTPBasicCredentials = Depends(security)):
+    security_check(credentials.username, credentials.password)
     # Stock price fetch from yfinance
     hist = (
         yf.Ticker(data.stock)
@@ -37,7 +53,18 @@ def fetch_stock_price(stock_id, start, end, interval="1h"):
 
 
 @api.post("/forecast")
-def get_stock_prices(data: ForecastInput):
+def get_stock_prices(data: ForecastInput, credentials: HTTPBasicCredentials = Depends(security)):
+    security_check(credentials.username, credentials.password)
+    if data.start_date > data.end_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Start date must be before end date",
+        )
+    if data.end_date > date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="End date must be before today",
+        )
     n_forecast = data.n_forecast or 12
     # stock price history
     df = fetch_stock_price(
@@ -64,7 +91,18 @@ def get_stock_prices(data: ForecastInput):
 
 
 @api.post("/forecast_past_hours")
-def forecast_past_hour(data: ForecastInput):
+def forecast_past_hour(data: ForecastInput, credentials: HTTPBasicCredentials = Depends(security)):
+    security_check(credentials.username, credentials.password)
+    if data.start_date > data.end_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Start date must be before end date",
+        )
+    if data.end_date > date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="End date must be before today",
+        )
     df = yf.Ticker(data.stock).history(
         start=data.start_date, end=data.end_date, interval=data.interval
     )

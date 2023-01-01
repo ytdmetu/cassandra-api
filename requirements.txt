@@ -21,3 +21,4 @@ ipykernel==5.3.4
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch
 pytest==6.2.5
+passlib==1.7.4
