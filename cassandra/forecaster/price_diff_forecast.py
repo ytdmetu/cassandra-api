@@ -19,7 +19,7 @@ from ..features import prepare_dataset
 from ..timeseries_utils import sliding_window
 from ..utils import get_asset_filepath
 
-config = dict(
+meta_config = dict(
     data=dict(
         look_back=60,
     ),
@@ -76,13 +76,29 @@ def build_forecaster(
     return forecaster
 
 
-forecaster = build_forecaster(
-    get_asset_filepath("multivariate-diff/xpp.pkl"),
-    get_asset_filepath("multivariate-diff/ypp.pkl"),
-    get_asset_filepath("multivariate-diff/learn.pkl"),
-    look_back=config["data"]["look_back"],
+meta_forecaster = build_forecaster(
+    get_asset_filepath("meta/multivariate-diff/xpp.pkl"),
+    get_asset_filepath("meta/multivariate-diff/ypp.pkl"),
+    get_asset_filepath("meta/multivariate-diff/learn.pkl"),
+    look_back=meta_config["data"]["look_back"],
+)
+
+aapl_config = dict(
+    data=dict(
+        look_back=60,
+    ),
+)
+aapl_forecaster = build_forecaster(
+    get_asset_filepath("aapl/multivariate-diff/xpp.pkl"),
+    get_asset_filepath("aapl/multivariate-diff/ypp.pkl"),
+    get_asset_filepath("aapl/multivariate-diff/learn.pkl"),
+    look_back=meta_config["data"]["look_back"],
 )
 
 
-def forecast(df, xnew):
-    return forecaster(df, xnew)
+def forecast(stock_id, df, xnew):
+    if stock_id.lower() == 'meta':
+        return meta_forecaster(df, xnew)
+    if stock_id.lower() == 'aapl':
+        return meta_forecaster(df, xnew)
+    raise ValueError()
