@@ -1,9 +1,10 @@
 from datetime import date
-from typing import Optional
-from pydantic import BaseModel, Field, validator
-from datetime import date
 from enum import Enum
+
+from fastapi import HTTPException
+
 from cassandra.forecast import ForecastStrategy
+from pydantic import BaseModel, root_validator, validator
 
 
 class Interval(str, Enum):
@@ -13,6 +14,7 @@ class Interval(str, Enum):
     day = "1d"
     week = "1wk"
     month = "1mo"
+
 
 class Stock(str, Enum):
     APPLE = "AAPL"
@@ -26,19 +28,22 @@ class StockPrice(BaseModel):
     interval: Interval
 
     class Config:
+        use_enum_values = True
         validate_assignment = True
 
-    @validator('interval')
-    def set_name(cls, interval):
-        return interval or '1h'
+    @validator("end_date")
+    def end_date_not_in_future(cls, end_date):
+        if end_date > date.today():
+            raise HTTPException(status_code=400, detail='End date cannot be in future')
+        return end_date
 
-class ForecastInput(BaseModel):
-    stock: Stock
-    start_date: date
-    end_date: date
-    interval: Interval
+    @root_validator
+    def start_date_before_end_date(cls, v):
+        if v.get("start_date") > v.get("end_date"):
+            raise HTTPException(status_code=400, detail='Start date must be before end date')
+        return v
+
+
+class ForecastInput(StockPrice):
     n_forecast: int
     strategy: ForecastStrategy
-
-    class Config:
-        use_enum_values = True
