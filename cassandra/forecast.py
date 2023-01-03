@@ -3,6 +3,7 @@ from enum import Enum
 
 from .forecaster.baselines import gaussian_noise, naive_forecast, random_walk
 from .forecaster.price_diff_forecast import forecast as price_diff_forecast_lstm
+from .forecaster.price_nlp_forecast import forecast as price_nlp_forecast
 
 
 class ForecastStrategy(str, Enum):
@@ -10,6 +11,7 @@ class ForecastStrategy(str, Enum):
     naive_forecast = "naive_forecast"
     random_walk = "random_walk"
     multivariate_diff = "multivariate_diff"
+    price_nlp_model = "price_nlp_model"
 
 
 def forecast(strategy, stock_id, df, n_forecast=12):
@@ -23,6 +25,8 @@ def forecast(strategy, stock_id, df, n_forecast=12):
         y = naive_forecast(df, x)
     elif strategy == ForecastStrategy.multivariate_diff:
         y = price_diff_forecast_lstm(stock_id, df, x)
+    elif strategy == ForecastStrategy.price_nlp_model:
+        y = price_nlp_forecast(stock_id, df, x)
     else:
         raise ValueError(strategy)
     return dict(x=x, y=y)
