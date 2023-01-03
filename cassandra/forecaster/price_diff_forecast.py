@@ -16,20 +16,9 @@ from tsai.inference import *
 from tsai.learner import load_learner
 
 from ..features import prepare_dataset
-from ..timeseries_utils import sliding_window
+from ..timeseries_utils import make_ts_samples
 from ..utils import get_asset_filepath
 
-meta_config = dict(
-    data=dict(
-        look_back=60,
-    ),
-)
-
-def make_ts_samples(data, look_back):
-    snippets = sliding_window(data, look_back) # (N, W, F+1)
-    x = np.swapaxes(snippets[:, :-1, :-1], 1, 2) # (N, F, W-1)
-    y = snippets[:, -1, -1] # (N, )
-    return x, y
 
 # Inference
 class Forecaster:
@@ -48,7 +37,7 @@ class Forecaster:
         return df.price.values[initial_length:].tolist()
 
     def _predict_one(self, raw_df):
-        df = prepare_dataset(raw_df.iloc[-self.look_back:])
+        df = prepare_dataset(raw_df.iloc[-self.look_back :])
         x_data_pp = self.xpp.transform(df)
         y_data_pp = self.ypp.transform(df["price_change"].values.reshape(-1, 1))
         data_pp = np.concatenate([x_data_pp, y_data_pp], axis=1)
@@ -75,6 +64,12 @@ def build_forecaster(
     forecaster = Forecaster(xpp, ypp, learn, look_back)
     return forecaster
 
+meta_config = dict(
+    data=dict(
+        look_back=60,
+    ),
+)
+
 
 meta_forecaster = build_forecaster(
     get_asset_filepath("meta/multivariate-diff/xpp.pkl"),
@@ -92,13 +87,13 @@ aapl_forecaster = build_forecaster(
     get_asset_filepath("aapl/multivariate-diff/xpp.pkl"),
     get_asset_filepath("aapl/multivariate-diff/ypp.pkl"),
     get_asset_filepath("aapl/multivariate-diff/learn.pkl"),
-    look_back=meta_config["data"]["look_back"],
+    look_back=aapl_config["data"]["look_back"],
 )
 
 
 def forecast(stock_id, df, xnew):
-    if stock_id.lower() == 'meta':
+    if stock_id.lower() == "meta":
         return meta_forecaster(df, xnew)
-    if stock_id.lower() == 'aapl':
+    if stock_id.lower() == "aapl":
         return meta_forecaster(df, xnew)
     raise ValueError()
