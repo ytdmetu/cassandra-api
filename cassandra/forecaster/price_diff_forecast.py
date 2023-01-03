@@ -100,5 +100,5 @@ def forecast(stock_id, df, xnew):
     if stock_id.lower() == 'meta':
         return meta_forecaster(df, xnew)
     if stock_id.lower() == 'aapl':
-        return meta_forecaster(df, xnew)
+        return aapl_forecaster(df, xnew)
     raise ValueError()

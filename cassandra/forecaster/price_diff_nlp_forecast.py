@@ -49,6 +49,8 @@ class Forecaster:
 
     def _predict_one(self, raw_df):
         df = prepare_dataset(raw_df.iloc[-self.look_back:])
+        # For the rows that df's price is not null and df's sentiment_score is null, set the sentiment_score to 0 <3<3<3
+        df.loc[df["price"].notnull() & df["sentiment_score"].isnull(), "sentiment_score"] = 0
         x_data_pp = self.xpp.transform(df)
         y_data_pp = self.ypp.transform(df["price_change"].values.reshape(-1, 1))
         data_pp = np.concatenate([x_data_pp, y_data_pp], axis=1)
@@ -77,9 +79,9 @@ def build_forecaster(
 
 
 meta_forecaster = build_forecaster(
-    get_asset_filepath("meta/multivariate-diff/xpp.pkl"),
-    get_asset_filepath("meta/multivariate-diff/ypp.pkl"),
-    get_asset_filepath("meta/multivariate-diff/learn.pkl"),
+    get_asset_filepath("meta/nlp-lstm/xpp.pkl"),
+    get_asset_filepath("meta/nlp-lstm/ypp.pkl"),
+    get_asset_filepath("meta/nlp-lstm/learn.pkl"),
     look_back=meta_config["data"]["look_back"],
 )
 
@@ -89,9 +91,9 @@ aapl_config = dict(
     ),
 )
 aapl_forecaster = build_forecaster(
-    get_asset_filepath("aapl/multivariate-diff/xpp.pkl"),
-    get_asset_filepath("aapl/multivariate-diff/ypp.pkl"),
-    get_asset_filepath("aapl/multivariate-diff/learn.pkl"),
+    get_asset_filepath("aapl/nlp-lstm/xpp.pkl"),
+    get_asset_filepath("aapl/nlp-lstm/ypp.pkl"),
+    get_asset_filepath("aapl/nlp-lstm/learn.pkl"),
     look_back=meta_config["data"]["look_back"],
 )
 
@@ -100,5 +102,5 @@ def forecast(stock_id, df, xnew):
     if stock_id.lower() == 'meta':
         return meta_forecaster(df, xnew)
     if stock_id.lower() == 'aapl':
-        return meta_forecaster(df, xnew)
+        return aapl_forecaster(df, xnew)
     raise ValueError()
