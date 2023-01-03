@@ -69,8 +69,6 @@ meta_config = dict(
         look_back=60,
     ),
 )
-
-
 meta_forecaster = build_forecaster(
     get_asset_filepath("meta/multivariate-diff/xpp.pkl"),
     get_asset_filepath("meta/multivariate-diff/ypp.pkl"),
