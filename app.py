@@ -1,36 +1,20 @@
 import datetime
+import json
 from functools import lru_cache
 
 import pandas as pd
 import yfinance as yf
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Depends, FastAPI, HTTPException
-import json
-from passlib.hash import pbkdf2_sha256
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from model import ForecastInput, StockPrice
-from pathlib import Path
-import requests
+from passlib.hash import pbkdf2_sha256
 
 TIMEZONE = datetime.timezone.utc
 FORECAST_INPUT_START_OFFSET = 30
 api = FastAPI()
 
 
-def download_assets():
-    print('Downloading assets')
-    assets_dir = Path(__file__).parent / 'cassandra' / 'assets'
-    for url in [
-        'https://github.com/bdsaglam/cassandra-api/blob/master/cassandra/assets/aapl/multivariate-diff/learn.pkl',
-    ]:
-        rel_path = url.split('assets/', 1)[-1]
-        full_path = assets_dir / rel_path
-        full_path.parent.mkdir(exist_ok=True, parents=True)
-        response = requests.get(url)
-        with open(full_path, 'wb') as f:
-            f.write(response.content)
-
-download_assets()
 
 security = HTTPBasic()
 def security_check(username: str, password: str):
