@@ -64,6 +64,7 @@ def build_forecaster(
     forecaster = Forecaster(xpp, ypp, learn, look_back)
     return forecaster
 
+
 meta_config = dict(
     data=dict(
         look_back=60,
