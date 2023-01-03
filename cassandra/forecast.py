@@ -2,7 +2,6 @@ import datetime
 from enum import Enum
 
 from .forecaster.baselines import gaussian_noise, naive_forecast, random_walk
-from .forecaster.price_forecast import forecast as price_forecast_lstm
 from .forecaster.price_diff_forecast import forecast as price_diff_forecast_lstm
 
 
@@ -10,8 +9,6 @@ class ForecastStrategy(str, Enum):
     gaussian = "gaussian"
     naive_forecast = "naive_forecast"
     random_walk = "random_walk"
-    univariate_lstm = "univariate_lstm"
-    multivariate_datetime = "multivariate_datetime"
     multivariate_diff = "multivariate_diff"
 
 
@@ -24,8 +21,6 @@ def forecast(strategy, stock_id, df, n_forecast=12):
         y = random_walk(df, x)
     elif strategy == ForecastStrategy.naive_forecast:
         y = naive_forecast(df, x)
-    elif strategy == ForecastStrategy.univariate_lstm:
-        y = price_forecast_lstm(stock_id, df, x)
     elif strategy == ForecastStrategy.multivariate_diff:
         y = price_diff_forecast_lstm(stock_id, df, x)
     else:
