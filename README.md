@@ -65,8 +65,7 @@ For strategy, the following values can be used:
 * random_walk
 * gaussian
 * naive_forecast
-* univariate_lstm
-* multivariate_datetime
+* multivariate_diff
 
 ## Example usage of API
 ```py
