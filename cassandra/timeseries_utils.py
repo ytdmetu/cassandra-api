@@ -12,9 +12,8 @@ def sliding_window(data, window_size: int):
     assert len(data) >= window_size
     return np.array(list(windowed(data, window_size)))
 
-
-def make_ts_samples(data, look_back, target_idx):
-    snippets = sliding_window(data, look_back)
-    x = snippets[:, :-1, :]  # (N, W-1, F)
-    y = snippets[:, -1, target_idx]  # (N, )
-    return (x, y)
+def make_ts_samples(data, look_back):
+    snippets = sliding_window(data, look_back) # (N, W, F+1)
+    x = np.swapaxes(snippets[:, :-1, :-1], 1, 2) # (N, F, W-1)
+    y = snippets[:, -1, -1] # (N, )
+    return x, y
