@@ -77,9 +77,9 @@ def build_forecaster(
 
 
 meta_forecaster = build_forecaster(
-    get_asset_filepath("meta/multivariate-diff/xpp.pkl"),
-    get_asset_filepath("meta/multivariate-diff/ypp.pkl"),
-    get_asset_filepath("meta/multivariate-diff/learn.pkl"),
+    get_asset_filepath("meta/nlp-lstm/xpp.pkl"),
+    get_asset_filepath("meta/nlp-lstm/ypp.pkl"),
+    get_asset_filepath("meta/nlp-lstm/learn.pkl"),
     look_back=meta_config["data"]["look_back"],
 )
 
@@ -88,13 +88,13 @@ aapl_config = dict(
         look_back=60,
     ),
 )
+
 aapl_forecaster = build_forecaster(
-    get_asset_filepath("aapl/multivariate-diff/xpp.pkl"),
-    get_asset_filepath("aapl/multivariate-diff/ypp.pkl"),
-    get_asset_filepath("aapl/multivariate-diff/learn.pkl"),
+    get_asset_filepath("aapl/nlp-lstm/xpp.pkl"),
+    get_asset_filepath("aapl/nlp-lstm/ypp.pkl"),
+    get_asset_filepath("aapl/nlp-lstm/learn.pkl"),
     look_back=meta_config["data"]["look_back"],
 )
-
 
 def forecast(stock_id, df, xnew):
     if stock_id.lower() == 'meta':
