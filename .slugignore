@@ -1,3 +1,4 @@
 # Ignore these files 
 /docs
 test_api.py
+requirements-dev.txt
