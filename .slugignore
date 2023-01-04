@@ -1,5 +1,5 @@
 # Ignore these files 
 /docs
-/cassandra/assets
+/artifacts
 test_api.py
 requirements-dev.txt
