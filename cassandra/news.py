@@ -15,26 +15,21 @@ def get_news(symbol):
         url = f"https://eodhistoricaldata.com/api/news?api_token={api_token}&s={symbol}&offset=0&limit=10"
         payload={}
         headers = {}
-
         response = requests.request("GET", url, headers=headers, data=payload)
-        
         return response.json()
+    
     elif random_number == 3:
         url = f"https://api.marketaux.com/v1/news/all?symbols={symbol}&filter_entities=true&language=en&api_token={Config.API_TOKEN_MARKETAUX}"
-
         payload={}
         headers = {}
-
         response = requests.request("GET", url, headers=headers, data=payload)
-
         return response.json()
+    
     else:
         start_date = date.today() - timedelta(days=10)
         end_date = date.today() + timedelta(days=1)
         url = f"https://finnhub.io/api/v1/company-news?symbol={symbol}&from={start_date}&to={end_date}&token={Config.API_TOKEN_FINNHUB}"
         payload={}
         headers = {}
-
         response = requests.request("GET", url, headers=headers, data=payload)
-
-        return (response.json())
+        return response.json()

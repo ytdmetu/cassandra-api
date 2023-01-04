@@ -1,18 +1,18 @@
 import datetime
-from functools import lru_cache
 import json
 
 import pandas as pd
 import requests
 import yfinance as yf
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past
+from cassandra.sentiment import compute_sentiment_score
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from model import ForecastInput, StockPrice
 from passlib.hash import pbkdf2_sha256
 
 TIMEZONE = datetime.timezone.utc
-FORECAST_INPUT_START_OFFSET = 30
+FORECAST_INPUT_START_OFFSET = 15
 app = FastAPI()
 
 
@@ -48,6 +48,7 @@ def fetch_price(
     )
     return hist
 
+
 # Stock price history
 def fetch_stock_price(stock_id, start, end, interval="1h"):
     raw_df = (
@@ -59,8 +60,6 @@ def fetch_stock_price(stock_id, start, end, interval="1h"):
 
 
 def fetch_stock_price_n_news(stock_id, start, end, interval="1h"):
-    from cassandra.sentiment import compute_sentiment_score
-
     timegroup = [
         datetime.datetime.strptime("14:30:00", "%H:%M:%S").time(),
         datetime.datetime.strptime("15:30:00", "%H:%M:%S").time(),
@@ -122,17 +121,23 @@ def fetch_stock_price_n_news(stock_id, start, end, interval="1h"):
         .agg("count")
         .reset_index()
     )
-    df_dict = dict(
-        zip(
-            sentiment_results["datetime_group"],
-            sentiment_results["sentiment_group"].apply(
-                lambda x: -1 if x == "negative" else 1 if x == "positive" else 0
-            )
-            * sentiment_results["category"],
+    df_sentiment = (
+        pd.DataFrame.from_dict(
+            dict(
+                zip(
+                    sentiment_results["datetime_group"],
+                    sentiment_results["sentiment_group"].apply(
+                        lambda x: -1 if x == "negative" else 1 if x == "positive" else 0
+                    )
+                    * sentiment_results["category"],
+                )
+            ),
+            orient="index",
+            columns=["sentiment_score"],
         )
     )
     raw_df = raw_df.merge(
-        pd.DataFrame.from_dict(df_dict, orient="index", columns=["sentiment_score"]),
+        df_sentiment,
         left_on="timestamp",
         right_index=True,
         how="left",

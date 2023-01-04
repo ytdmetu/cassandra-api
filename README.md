@@ -19,7 +19,7 @@ pytest test_api.py
 
 In order to run API in local env:
 ```
-uvicorn app:api --reload
+uvicorn app:app --reload
 ```
 
 The API will be available at `http://127.0.0.1:8000`
@@ -79,7 +79,8 @@ payload = {
     "n_forecast": 12,
     "strategy": "naive_forecast"
 }
-res = requests.post(forecast_endpoint, json=payload)
+auth = requests.auth.HTTPBasicAuth("demo", "demo_password123")
+res = requests.post(forecast_endpoint, json=payload, auth=auth)
 print(res.status_code)
 print(res.json())
 ```
