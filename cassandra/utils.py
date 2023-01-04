@@ -53,23 +53,22 @@ def windowed(seq, n, fillvalue=None, step=1):
 
 
 def make_artifact_filepath(uri):
-    return Path(__file__).parent.parent / 'artifacts' / uri
-    # return Path("/tmp/cassandra-api/assets") / uri
+    return Path(__file__).parent.parent / "artifacts" / uri
 
 
 def download_artifact(uri):
     print(f"Downloading asset {uri}")
-    asset_filepath = make_artifact_filepath(uri)
-    asset_filepath.parent.mkdir(exist_ok=True, parents=True)
-    url = f"https://raw.github.com/bdsaglam/cassandra-api/master/cassandra/assets/{uri}"
+    artifact_filepath = make_artifact_filepath(uri)
+    artifact_filepath.parent.mkdir(exist_ok=True, parents=True)
+    url = f"https://raw.github.com/bdsaglam/cassandra-api/master/artifacts/{uri}"
     print(f"Fetching from {url}")
     response = requests.get(url)
-    with open(asset_filepath, "wb") as f:
+    with open(artifact_filepath, "wb") as f:
         f.write(response.content)
 
 
 def get_artifact_filepath(uri):
-    asset_filepath = make_artifact_filepath(uri)
-    if not asset_filepath.exists():
+    artifact_filepath = make_artifact_filepath(uri)
+    if not artifact_filepath.exists():
         download_artifact(uri)
-    return asset_filepath
+    return artifact_filepath
