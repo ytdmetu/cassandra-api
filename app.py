@@ -1,5 +1,4 @@
 import datetime
-from functools import lru_cache
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 import pandas as pd
 import yfinance as yf
@@ -46,8 +45,6 @@ def fetch_price(data: StockPrice, credentials: HTTPBasicCredentials = Depends(se
     return hist
 
 
-# Stock price history
-@lru_cache(maxsize=10)
 def fetch_stock_price_n_news(stock_id, start, end, interval="1h"):
     from datetime import datetime
     timegroup=[datetime.strptime('14:30:00', '%H:%M:%S').time(),datetime.strptime('15:30:00', '%H:%M:%S').time(),datetime.strptime('16:30:00', '%H:%M:%S').time(),datetime.strptime('17:30:00', '%H:%M:%S').time(),datetime.strptime('18:30:00', '%H:%M:%S').time(),datetime.strptime('19:30:00', '%H:%M:%S').time(),datetime.strptime('20:30:00', '%H:%M:%S').time()]
