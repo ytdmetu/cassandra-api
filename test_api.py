@@ -1,7 +1,7 @@
-from app import api
+from app import app
 from starlette.testclient import TestClient
 
-test_client = TestClient(api)
+test_client = TestClient(app)
 test_client.auth = ('pytest', 'pytest')
 
 def test_forecast_api():

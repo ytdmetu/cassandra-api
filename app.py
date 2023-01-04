@@ -13,7 +13,7 @@ from passlib.hash import pbkdf2_sha256
 
 TIMEZONE = datetime.timezone.utc
 FORECAST_INPUT_START_OFFSET = 30
-api = FastAPI()
+app = FastAPI()
 
 
 security = HTTPBasic()
@@ -33,7 +33,7 @@ def security_check(username: str, password: str):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
 
-@api.get("/stockprice")
+@app.get("/stockprice")
 # Stock price history
 def fetch_price(
     data: StockPrice, credentials: HTTPBasicCredentials = Depends(security)
@@ -145,7 +145,7 @@ def fetch_stock_price_n_news(stock_id, start, end, interval="1h"):
     )
 
 
-@api.post("/forecast")
+@app.post("/forecast")
 def get_stock_prices(
     data: ForecastInput, credentials: HTTPBasicCredentials = Depends(security)
 ):
@@ -180,7 +180,7 @@ def get_stock_prices(
     return [history_data, forecast_data, past_predictions]
 
 
-@api.post("/forecast_past_hours")
+@app.post("/forecast_past_hours")
 def forecast_past_hour(
     data: ForecastInput, credentials: HTTPBasicCredentials = Depends(security)
 ):
