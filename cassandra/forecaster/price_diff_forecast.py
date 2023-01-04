@@ -1,5 +1,6 @@
 import datetime
 import pickle
+from functools import lru_cache
 from typing import List
 
 import numpy as np
@@ -65,34 +66,29 @@ def build_forecaster(
     return forecaster
 
 
-meta_config = dict(
-    data=dict(
-        look_back=60,
-    ),
-)
-meta_forecaster = build_forecaster(
-    get_artifact_filepath("meta/multivariate-diff/xpp.pkl"),
-    get_artifact_filepath("meta/multivariate-diff/ypp.pkl"),
-    get_artifact_filepath("meta/multivariate-diff/learn.pkl"),
-    look_back=meta_config["data"]["look_back"],
-)
 
-aapl_config = dict(
-    data=dict(
+@lru_cache(maxsize=1)
+def get_meta_forecaster():
+    return build_forecaster(
+        get_artifact_filepath("meta/multivariate-diff/xpp.pkl"),
+        get_artifact_filepath("meta/multivariate-diff/ypp.pkl"),
+        get_artifact_filepath("meta/multivariate-diff/learn.pkl"),
         look_back=60,
-    ),
-)
-aapl_forecaster = build_forecaster(
-    get_artifact_filepath("aapl/multivariate-diff/xpp.pkl"),
-    get_artifact_filepath("aapl/multivariate-diff/ypp.pkl"),
-    get_artifact_filepath("aapl/multivariate-diff/learn.pkl"),
-    look_back=aapl_config["data"]["look_back"],
-)
+    )
 
+
+@lru_cache(maxsize=1)
+def get_aapl_forecaster():
+    return build_forecaster(
+        get_artifact_filepath("aapl/multivariate-diff/xpp.pkl"),
+        get_artifact_filepath("aapl/multivariate-diff/ypp.pkl"),
+        get_artifact_filepath("aapl/multivariate-diff/learn.pkl"),
+        look_back=60,
+    )
 
 def forecast(stock_id, df, xnew):
     if stock_id.lower() == "meta":
-        return meta_forecaster(df, xnew)
+        return get_meta_forecaster()(df, xnew)
     if stock_id.lower() == 'aapl':
-        return aapl_forecaster(df, xnew)
+        return get_aapl_forecaster()(df, xnew)
     raise ValueError()
