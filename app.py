@@ -12,7 +12,7 @@ from model import ForecastInput, StockPrice
 from passlib.hash import pbkdf2_sha256
 
 TIMEZONE = datetime.timezone.utc
-FORECAST_INPUT_START_OFFSET = 30
+FORECAST_INPUT_START_OFFSET = 15
 app = FastAPI()
 
 
