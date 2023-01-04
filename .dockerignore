@@ -2,7 +2,6 @@
 .gitignore
 Procfile
 .slugignore
-artifacts/
 docs/
 .pytest_cache
 .DS_Store
