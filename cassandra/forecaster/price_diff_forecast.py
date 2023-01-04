@@ -12,7 +12,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
-from tsai.inference import *
+from tsai.inference import get_X_preds
 from tsai.learner import load_learner
 
 from ..features import prepare_dataset
