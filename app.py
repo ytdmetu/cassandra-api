@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import yfinance as yf
 from cassandra.forecast import ForecastStrategy, forecast, forecast_past
+from cassandra.sentiment import compute_sentiment_score
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from model import ForecastInput, StockPrice
@@ -59,8 +60,6 @@ def fetch_stock_price(stock_id, start, end, interval="1h"):
 
 
 def fetch_stock_price_n_news(stock_id, start, end, interval="1h"):
-    from cassandra.sentiment import compute_sentiment_score
-
     timegroup = [
         datetime.datetime.strptime("14:30:00", "%H:%M:%S").time(),
         datetime.datetime.strptime("15:30:00", "%H:%M:%S").time(),

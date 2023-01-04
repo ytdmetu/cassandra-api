@@ -66,9 +66,9 @@ def build_forecaster(
     return forecaster
 
 
-
 @lru_cache(maxsize=1)
 def get_meta_forecaster():
+    print("Creating LSTM model for META")
     return build_forecaster(
         get_artifact_filepath("meta/multivariate-diff/xpp.pkl"),
         get_artifact_filepath("meta/multivariate-diff/ypp.pkl"),
@@ -79,6 +79,7 @@ def get_meta_forecaster():
 
 @lru_cache(maxsize=1)
 def get_aapl_forecaster():
+    print("Creating LSTM model for AAPL")
     return build_forecaster(
         get_artifact_filepath("aapl/multivariate-diff/xpp.pkl"),
         get_artifact_filepath("aapl/multivariate-diff/ypp.pkl"),
@@ -86,9 +87,14 @@ def get_aapl_forecaster():
         look_back=60,
     )
 
+
 def forecast(stock_id, df, xnew):
     if stock_id.lower() == "meta":
         return get_meta_forecaster()(df, xnew)
-    if stock_id.lower() == 'aapl':
+    if stock_id.lower() == "aapl":
         return get_aapl_forecaster()(df, xnew)
     raise ValueError()
+
+
+# warmup
+get_meta_forecaster()

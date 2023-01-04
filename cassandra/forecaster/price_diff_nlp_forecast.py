@@ -85,6 +85,7 @@ def build_forecaster(
 
 @lru_cache(maxsize=1)
 def get_meta_forecaster():
+    print("Creating NLP LSTM model for META")
     return build_forecaster(
         get_artifact_filepath("meta/nlp-lstm/xpp.pkl"),
         get_artifact_filepath("meta/nlp-lstm/ypp.pkl"),
@@ -95,6 +96,7 @@ def get_meta_forecaster():
 
 @lru_cache(maxsize=1)
 def get_aapl_forecaster():
+    print("Creating NLP LSTM model for AAPL")
     return build_forecaster(
         get_artifact_filepath("aapl/nlp-lstm/xpp.pkl"),
         get_artifact_filepath("aapl/nlp-lstm/ypp.pkl"),
@@ -109,3 +111,7 @@ def forecast(stock_id, df, xnew):
     if stock_id.lower() == "aapl":
         return get_aapl_forecaster()(df, xnew)
     raise ValueError()
+
+
+# warmup
+get_meta_forecaster()
