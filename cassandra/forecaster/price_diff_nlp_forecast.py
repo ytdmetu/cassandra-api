@@ -1,5 +1,6 @@
 import datetime
 import pickle
+from functools import lru_cache
 from typing import List
 
 import numpy as np
@@ -25,11 +26,13 @@ meta_config = dict(
     ),
 )
 
+
 def make_ts_samples(data, look_back):
-    snippets = sliding_window(data, look_back) # (N, W, F+1)
-    x = np.swapaxes(snippets[:, :-1, :-1], 1, 2) # (N, F, W-1)
-    y = snippets[:, -1, -1] # (N, )
+    snippets = sliding_window(data, look_back)  # (N, W, F+1)
+    x = np.swapaxes(snippets[:, :-1, :-1], 1, 2)  # (N, F, W-1)
+    y = snippets[:, -1, -1]  # (N, )
     return x, y
+
 
 # Inference
 class Forecaster:
@@ -48,9 +51,11 @@ class Forecaster:
         return df.price.values[initial_length:].tolist()
 
     def _predict_one(self, raw_df):
-        df = prepare_dataset(raw_df.iloc[-self.look_back:])
+        df = prepare_dataset(raw_df.iloc[-self.look_back :])
         # For the rows that df's price is not null and df's sentiment_score is null, set the sentiment_score to 0 <3<3<3
-        df.loc[df["price"].notnull() & df["sentiment_score"].isnull(), "sentiment_score"] = 0
+        df.loc[
+            df["price"].notnull() & df["sentiment_score"].isnull(), "sentiment_score"
+        ] = 0
         x_data_pp = self.xpp.transform(df)
         y_data_pp = self.ypp.transform(df["price_change"].values.reshape(-1, 1))
         data_pp = np.concatenate([x_data_pp, y_data_pp], axis=1)
@@ -78,29 +83,29 @@ def build_forecaster(
     return forecaster
 
 
-meta_forecaster = build_forecaster(
-    get_artifact_filepath("meta/nlp-lstm/xpp.pkl"),
-    get_artifact_filepath("meta/nlp-lstm/ypp.pkl"),
-    get_artifact_filepath("meta/nlp-lstm/learn.pkl"),
-    look_back=meta_config["data"]["look_back"],
-)
-
-aapl_config = dict(
-    data=dict(
+@lru_cache(maxsize=1)
+def get_meta_forecaster():
+    return build_forecaster(
+        get_artifact_filepath("meta/nlp-lstm/xpp.pkl"),
+        get_artifact_filepath("meta/nlp-lstm/ypp.pkl"),
+        get_artifact_filepath("meta/nlp-lstm/learn.pkl"),
         look_back=60,
-    ),
-)
-aapl_forecaster = build_forecaster(
-    get_artifact_filepath("aapl/nlp-lstm/xpp.pkl"),
-    get_artifact_filepath("aapl/nlp-lstm/ypp.pkl"),
-    get_artifact_filepath("aapl/nlp-lstm/learn.pkl"),
-    look_back=meta_config["data"]["look_back"],
-)
+    )
+
+
+@lru_cache(maxsize=1)
+def get_aapl_forecaster():
+    return build_forecaster(
+        get_artifact_filepath("aapl/nlp-lstm/xpp.pkl"),
+        get_artifact_filepath("aapl/nlp-lstm/ypp.pkl"),
+        get_artifact_filepath("aapl/nlp-lstm/learn.pkl"),
+        look_back=60,
+    )
 
 
 def forecast(stock_id, df, xnew):
-    if stock_id.lower() == 'meta':
-        return meta_forecaster(df, xnew)
-    if stock_id.lower() == 'aapl':
-        return aapl_forecaster(df, xnew)
+    if stock_id.lower() == "meta":
+        return get_meta_forecaster()(df, xnew)
+    if stock_id.lower() == "aapl":
+        return get_aapl_forecaster()(df, xnew)
     raise ValueError()
