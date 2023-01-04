@@ -1,0 +1,7 @@
+.git
+.gitignore
+Procfile
+.slugignore
+docs/
+.pytest_cache
+.DS_Store
