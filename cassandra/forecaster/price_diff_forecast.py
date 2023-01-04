@@ -67,6 +67,7 @@ def build_forecaster(
 
 
 
+@lru_cache(maxsize=1)
 def get_meta_forecaster():
     return build_forecaster(
         get_artifact_filepath("meta/multivariate-diff/xpp.pkl"),
@@ -76,6 +77,7 @@ def get_meta_forecaster():
     )
 
 
+@lru_cache(maxsize=1)
 def get_aapl_forecaster():
     return build_forecaster(
         get_artifact_filepath("aapl/multivariate-diff/xpp.pkl"),

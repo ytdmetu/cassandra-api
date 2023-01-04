@@ -83,6 +83,7 @@ def build_forecaster(
     return forecaster
 
 
+@lru_cache(maxsize=1)
 def get_meta_forecaster():
     return build_forecaster(
         get_artifact_filepath("meta/nlp-lstm/xpp.pkl"),
@@ -92,6 +93,7 @@ def get_meta_forecaster():
     )
 
 
+@lru_cache(maxsize=1)
 def get_aapl_forecaster():
     return build_forecaster(
         get_artifact_filepath("aapl/nlp-lstm/xpp.pkl"),
