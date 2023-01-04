@@ -1,5 +1,4 @@
 import datetime
-from functools import lru_cache
 import json
 
 import pandas as pd
@@ -47,6 +46,7 @@ def fetch_price(
         .to_dict(orient="records")
     )
     return hist
+
 
 # Stock price history
 def fetch_stock_price(stock_id, start, end, interval="1h"):
@@ -122,17 +122,23 @@ def fetch_stock_price_n_news(stock_id, start, end, interval="1h"):
         .agg("count")
         .reset_index()
     )
-    df_dict = dict(
-        zip(
-            sentiment_results["datetime_group"],
-            sentiment_results["sentiment_group"].apply(
-                lambda x: -1 if x == "negative" else 1 if x == "positive" else 0
-            )
-            * sentiment_results["category"],
+    df_sentiment = (
+        pd.DataFrame.from_dict(
+            dict(
+                zip(
+                    sentiment_results["datetime_group"],
+                    sentiment_results["sentiment_group"].apply(
+                        lambda x: -1 if x == "negative" else 1 if x == "positive" else 0
+                    )
+                    * sentiment_results["category"],
+                )
+            ),
+            orient="index",
+            columns=["sentiment_score"],
         )
     )
     raw_df = raw_df.merge(
-        pd.DataFrame.from_dict(df_dict, orient="index", columns=["sentiment_score"]),
+        df_sentiment,
         left_on="timestamp",
         right_index=True,
         how="left",
