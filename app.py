@@ -1,4 +1,5 @@
 import datetime
+from functools import lru_cache
 import json
 
 import pandas as pd
@@ -46,6 +47,15 @@ def fetch_price(
         .to_dict(orient="records")
     )
     return hist
+
+# Stock price history
+def fetch_stock_price(stock_id, start, end, interval="1h"):
+    raw_df = (
+        yf.Ticker(stock_id)
+        .history(start=start, end=end, interval=interval)
+        .tz_convert(TIMEZONE)
+    )
+    return pd.DataFrame(index=raw_df.index, data=dict(price=raw_df.Close.values))
 
 
 def fetch_stock_price_n_news(stock_id, start, end, interval="1h"):
@@ -142,9 +152,14 @@ def get_stock_prices(
     security_check(credentials.username, credentials.password)
     n_forecast = data.n_forecast or 12
     # stock price history
-    df = fetch_stock_price_n_news(
-        data.stock, data.start_date.isoformat(), data.end_date.isoformat()
-    )
+    if "nlp" in data.strategy:
+        df = fetch_stock_price_n_news(
+            data.stock, data.start_date.isoformat(), data.end_date.isoformat()
+        )
+    else:
+        df = fetch_stock_price(
+            data.stock, data.start_date.isoformat(), data.end_date.isoformat()
+        )
     # forecast
     input_df = df[
         data.end_date - datetime.timedelta(days=FORECAST_INPUT_START_OFFSET) :
