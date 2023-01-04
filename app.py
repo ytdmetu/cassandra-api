@@ -192,4 +192,4 @@ def forecast_past_hour(
     df = fetch_stock_price_n_news(
         data.stock, data.start_date.isoformat(), data.end_date.isoformat()
     )
-    return forecast_past(strategy, df, data.stock, look_back=60)
+    return forecast_past(strategy, df, data.stock)

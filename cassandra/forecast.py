@@ -32,10 +32,24 @@ def forecast(strategy, stock_id, df, n_forecast=12):
     return dict(x=x, y=y)
 
 
-def forecast_past(strategy, df, stock_id, look_back=60):
+def forecast_past(strategy, df, stock_id,):
     # It also indicates the number of backtesting hours
     predictions_date = []
     predictions = []
+    # Look back according to model
+    if strategy == ForecastStrategy.gaussian:
+        look_back = 60
+    elif strategy == ForecastStrategy.random_walk:
+        look_back = 60
+    elif strategy == ForecastStrategy.naive_forecast:
+        look_back = 60
+    elif strategy == ForecastStrategy.multivariate_diff:
+        look_back = 60
+    elif strategy == ForecastStrategy.price_nlp_model:
+        look_back = 226
+    else:
+        raise ValueError(strategy)
+    # Forecast
     for i in range(look_back, len(df)):
         new_df = df.iloc[i - look_back : i]
         result = forecast(strategy, stock_id, new_df, n_forecast=1)
