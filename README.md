@@ -1,4 +1,16 @@
 # Cassandra API
+There are 2 options for using API from Cassandra.
+
+NOTE : API requires Basic Auth in both options. 
+> To use it with postman -> Select type as 'Basic Auth' from Authorization Menu.
+```
+  Username: demo
+  Password: demo_password123
+```
+
+1. The public API is managed by YTD team. 'BASE URL': https://cassandra-api.herokuapp.com
+
+2. It can be used locally too (We support Linux/MacOS/Docker):
 
   Preconditions:
 * Python3
@@ -70,7 +82,7 @@ For strategy, the following values can be used:
 ## Example usage of API
 ```py
 import requests
-forecast_endpoint = 'https://cassandra-api.herokuapp.com/forecast'
+forecast_endpoint = 'https://cassandra-api.herokuapp.com/forecast' # If you want to use local endpoint: 'https://localhost:8000/forecast'
 payload = {
     "stock": "META",
     "start_date": "2022-11-02",
