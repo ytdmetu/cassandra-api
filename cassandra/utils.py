@@ -1,13 +1,9 @@
 from collections import deque
-from itertools import (
-    chain,
-    repeat,
-)
+from itertools import chain, repeat
 from pathlib import Path
 
+import requests
 
-def get_asset_filepath(filename):
-    return Path(__file__).parent / "assets" / filename
 
 # https://github.com/more-itertools/more-itertools/blob/master/more_itertools/more.py
 def windowed(seq, n, fillvalue=None, step=1):
@@ -54,3 +50,25 @@ def windowed(seq, n, fillvalue=None, step=1):
     elif 0 < i < min(step, n):
         window += (fillvalue,) * i
         yield tuple(window)
+
+
+def make_artifact_filepath(uri):
+    return Path(__file__).parent.parent / "artifacts" / uri
+
+
+def download_artifact(uri):
+    print(f"Downloading asset {uri}")
+    artifact_filepath = make_artifact_filepath(uri)
+    artifact_filepath.parent.mkdir(exist_ok=True, parents=True)
+    url = f"https://raw.github.com/bdsaglam/cassandra-api/master/artifacts/{uri}"
+    print(f"Fetching from {url}")
+    response = requests.get(url)
+    with open(artifact_filepath, "wb") as f:
+        f.write(response.content)
+
+
+def get_artifact_filepath(uri):
+    artifact_filepath = make_artifact_filepath(uri)
+    if not artifact_filepath.exists():
+        download_artifact(uri)
+    return artifact_filepath

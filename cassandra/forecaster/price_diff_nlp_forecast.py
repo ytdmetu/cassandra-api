@@ -17,7 +17,7 @@ from tsai.learner import load_learner
 
 from ..features import prepare_dataset
 from ..timeseries_utils import sliding_window
-from ..utils import get_asset_filepath
+from ..utils import get_artifact_filepath
 
 meta_config = dict(
     data=dict(
@@ -79,9 +79,9 @@ def build_forecaster(
 
 
 meta_forecaster = build_forecaster(
-    get_asset_filepath("meta/nlp-lstm/xpp.pkl"),
-    get_asset_filepath("meta/nlp-lstm/ypp.pkl"),
-    get_asset_filepath("meta/nlp-lstm/learn.pkl"),
+    get_artifact_filepath("meta/nlp-lstm/xpp.pkl"),
+    get_artifact_filepath("meta/nlp-lstm/ypp.pkl"),
+    get_artifact_filepath("meta/nlp-lstm/learn.pkl"),
     look_back=meta_config["data"]["look_back"],
 )
 
@@ -91,9 +91,9 @@ aapl_config = dict(
     ),
 )
 aapl_forecaster = build_forecaster(
-    get_asset_filepath("aapl/nlp-lstm/xpp.pkl"),
-    get_asset_filepath("aapl/nlp-lstm/ypp.pkl"),
-    get_asset_filepath("aapl/nlp-lstm/learn.pkl"),
+    get_artifact_filepath("aapl/nlp-lstm/xpp.pkl"),
+    get_artifact_filepath("aapl/nlp-lstm/ypp.pkl"),
+    get_artifact_filepath("aapl/nlp-lstm/learn.pkl"),
     look_back=meta_config["data"]["look_back"],
 )
 
